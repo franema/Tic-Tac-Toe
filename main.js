@@ -27,8 +27,10 @@ const manageGame = (() => {
         gameboard.$gameboardBoxes.forEach((box) => {
             box.textContent = ""
             box.classList.remove("disabled")
+            box.style.color = "rgb(32, 22, 49)"
         })
         gameboard.selectedBoxes = []
+        player = player1
         manageDisplay.showPlayersTurn()
     }
 
