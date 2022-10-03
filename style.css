@@ -1,0 +1,27 @@
+.game-board {
+    display: grid;
+    grid-template:repeat(3, 100px) / repeat(3, 100px) ;
+}
+
+.board-box {
+    min-height: 100px;
+    border: 1px solid red;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    font-size: 50px;
+    transition: all 0.5s;
+}
+
+.board-box:nth-child(-n +3) {
+    border-top: none;
+}
+.board-box:nth-child(3n +1) {
+    border-left: none;
+}
+.board-box:nth-child(1n +7) {
+    border-bottom: none;
+}
+.board-box:nth-child(3n +3) {
+    border-right: none;
+}
