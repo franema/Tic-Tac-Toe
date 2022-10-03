@@ -24,6 +24,25 @@
     background-color: rgb(163, 163, 159);
     padding: 15px;
     border-radius: 6px;
+    font-size: 1.5rem;
+}
+
+.restart-button {
+    font-size: 1.2rem;
+    border-radius: 6px;
+    border: 1px solid rgb(216, 215, 215);
+    color: rgb(147, 201, 171);
+    background-color: rgb(99, 68, 153);
+}
+
+.restart-button:hover {
+    background-color: rgb(147, 201, 171);
+    color: rgb(99, 68, 153);
+}
+
+.player {
+    color: rgb(50, 105, 76);
+    font-weight: bold;
 }
 
 .game-board {
@@ -39,8 +58,8 @@
     justify-items: center;
     align-items: center;
     font-size: 50px;
-    transition: all 0.5s;
-    color: aliceblue;
+    transition: all 1s;
+    color: rgb(32, 22, 49);
 }
 
 .board-box:nth-child(-n +3) {
