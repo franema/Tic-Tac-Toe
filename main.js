@@ -12,16 +12,29 @@ const gameboard = (() => {
 
 const manageGame = (() => {
 
-    const player1 = playerFactory("X", "Player 1")
-    const player2 = playerFactory("O", "Player 2")
-    let player = player1
+    const $switch = document.querySelector(".switch-input")
+    let humanPlayer
+    let AIPlayer
+    setSelector()
+    let player = humanPlayer
 
     const getPlayer = () => player
 
     const $restartButton = document.querySelector(".restart-button")
-
     //bind events
     $restartButton.addEventListener("click", start)
+    $switch.addEventListener("change", start)
+
+    function setSelector () {
+        if($switch.checked) {
+            humanPlayer = playerFactory("O", "Human Player")
+            AIPlayer = playerFactory("X", "AI player")
+        } else {
+            humanPlayer = playerFactory("X", "Human Player")
+            AIPlayer = playerFactory("O", "AI player")
+        }
+    }
+    
 
     function start() {
         gameboard.$gameboardBoxes.forEach((box) => {
@@ -30,7 +43,8 @@ const manageGame = (() => {
             box.style.color = "rgb(32, 22, 49)"
         })
         gameboard.selectedBoxes = []
-        player = player1
+        setSelector()
+        player = humanPlayer
         manageDisplay.showPlayersTurn()
     }
 
@@ -64,7 +78,7 @@ const manageGame = (() => {
         } else if (gameboard.selectedBoxes.length === 9) {
             manageDisplay.showDraw()
         } else {
-            player = player === player1 ? player2 : player1
+            player = player === humanPlayer ? AIPlayer : humanPlayer
             manageDisplay.showPlayersTurn()
         }
 
