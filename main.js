@@ -18,7 +18,8 @@ const manageGame = (() => {
     setSelector()
     let player = setFirstPlayer()
 
-
+    const getAIPlayer = () => AIPlayer
+    const getHumanPlayer = () => humanPlayer 
     const getPlayer = () => player
 
     const $restartButton = document.querySelector(".restart-button")
@@ -106,7 +107,7 @@ const manageGame = (() => {
         }
     }
 
-    return { getPlayer, checkIfWin, threeInColumn, threeInDiagonal, threeInRow }
+    return { getPlayer, getAIPlayer, getHumanPlayer,checkIfWin }
 })()
 
 
@@ -149,52 +150,136 @@ const manageDisplay = (() => {
 
 const AIPlay = (() => {
 
-    let depth = -2
+    let board = [
+        ['', '', ''],
+        ['', '', ''],
+        ['', '', '']
+    ];
 
-    function searchAvailableBoxes(gameboardBoxes) {
-        return gameboardBoxes.filter(box => !Array.from(gameboard.selectedBoxes).includes(box))
+
+    function generateBoard() {
+        counter = 0
+        for (let i = 0; i < 3; i++) {
+            board[i][0] = gameboard.$gameboardBoxes[counter].textContent
+            board[i][1] = gameboard.$gameboardBoxes[counter + 1].textContent
+            board[i][2] = gameboard.$gameboardBoxes[counter + 2].textContent
+            counter += 3
+        }
+        return board
     }
 
     function setPlay() {
-        depth = -2
-        const gameboardBoxes = Array.from(gameboard.$gameboardBoxes)
-        const availableBoxes = searchAvailableBoxes(gameboardBoxes)
-        const randomBox = Math.floor(Math.random() * availableBoxes.length)
+        board = generateBoard()
+        bestMove = getBestMove(board)
+        if (bestMove.i === 0) {
+            return gameboard.$gameboardBoxes[bestMove.j]
+        } else if (bestMove.i === 1) {
+            return gameboard.$gameboardBoxes[bestMove.j + 3]
+        } else {
+            return gameboard.$gameboardBoxes[bestMove.j + 6]
+        }
 
-        return getBestMove(availableBoxes) || availableBoxes[randomBox]
     }
 
-    function getBestMove(availableBoxes) {
+    function getBestMove(board) {
+        let bestScore = -1000
         let bestMove
-        for (let i = 0; i < availableBoxes.length; i++) {
-            bestMove = checkAIPlay(availableBoxes[i])
-            if (bestMove) {
-                return bestMove
-            } else {
-                // emulateNextPlay(availableBoxes)
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (board[i][j] === "") {
+                    board[i][j] = manageGame.getAIPlayer().getSelector()
+                    let score = minimax(board, 0, false)
+                    board[i][j] = ""
+                    if (score > bestScore) {
+                        bestScore = score
+                        bestMove = { i, j }
+                    }
+                }
             }
         }
+        return bestMove
     }
 
-    function checkAIPlay(selection) {
-        const AIPlayerSelected = gameboard.selectedBoxes.filter(box => box.textContent === manageGame.getPlayer().getSelector())
-        AIPlayerSelected.push(selection)
-        if(checkWin(AIPlayerSelected)) {
-            return selection
+    function minimax(board, depth, isMaximizing) {
+
+        let winner = checkMinimaxEnd(board)
+        if (winner == manageGame.getHumanPlayer().getSelector()) {
+            return -10
+        } else if (winner == manageGame.getAIPlayer().getSelector()) {
+            return 10
+        } else if (winner == "tie") {
+            return 0
+        }
+
+        if (isMaximizing) {
+            let bestScore = -Infinity
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[i][j] == '') {
+                        board[i][j] = manageGame.getAIPlayer().getSelector()
+                        let score = minimax(board, depth + 1, false)
+                        board[i][j] = ''
+                        bestScore = Math.max(score, bestScore)
+                    }
+                }
+            }
+            return bestScore;
+        } else {
+            let bestScore = Infinity;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[i][j] == '') {
+                        board[i][j] = manageGame.getHumanPlayer().getSelector();
+                        let score = minimax(board, depth + 1, true)
+                        board[i][j] = ''
+                        bestScore = Math.min(score, bestScore)
+                    }
+                }
+            }
+            return bestScore
         }
     }
 
-    function checkWin (selection) {
-        return (manageGame.threeInColumn(selection) || manageGame.threeInRow(selection) || manageGame.threeInDiagonal(selection))   
-    }
+    function checkMinimaxEnd(board) {
+        let winner = null;
 
-    function emulateNextPlay (availableBoxes) {
-        const selectedBoxes = gameboard.selectedBoxes
-        const randomBox = Math.floor(Math.random() * availableBoxes.length)
-        selectedBoxes.push(availableBoxes[randomBox])
-        availableBoxes.splice(randomBox, 1)
-        
+        // Horizontal
+        for (let i = 0; i < 3; i++) {
+            if (board[i][0] === board[i][1] && board[i][1] === board[i][2]) {
+                winner = board[i][0]
+            }
+        }
 
+        // Vertical
+        for (let i = 0; i < 3; i++) {
+            if (board[0][i] === board[1][i] && board[1][i] === board[2][i]) {
+                winner = board[0][i]
+            }
+        }
+
+        // Diagonal
+        if (board[0][0] === board[1][1]  && board[1][1] === board[2][2]) {
+            winner = board[0][0];
+        }
+        if (board[2][0] === board[1][1] && board[1][1] === board[0][2]) {
+            winner = board[2][0];
+        }
+
+        let openSpots = 0;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if (board[i][j] == '') {
+                    openSpots++;
+                }
+            }
+        }
+
+        if (winner == null && openSpots == 0) {
+            return 'tie';
+        } else {
+            return winner;
+        }
     }
     return { setPlay }
 })()
